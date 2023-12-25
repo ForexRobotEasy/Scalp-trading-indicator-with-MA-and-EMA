@@ -1,0 +1,80 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                                     Scalp trading indicator with MA and EMA |
+//|                                     Copyright 2022, Forex Robot Easy Team |
+//|                                              https://forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+#property indicator_chart_window
+#property indicator_buffers 3
+#property indicator_color1 Lime
+#property indicator_color2 Red
+#property indicator_color3 White
+#property indicator_width1 1
+#property indicator_width2 1
+#property indicator_width3 2
+
+input int MA10_Period = 10;
+input int MA21_Period = 21;
+input int EMA200_Period = 200;
+
+double MA10_Buffer[];
+double MA21_Buffer[];
+double EMA200_Buffer[];
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Set indicator buffers
+   SetIndexBuffer(0, MA10_Buffer);
+   SetIndexBuffer(1, MA21_Buffer);
+   SetIndexBuffer(2, EMA200_Buffer);
+
+   // Set indicator labels
+   SetIndexLabel(0, 'SMA10');
+   SetIndexLabel(1, 'SMA21');
+   SetIndexLabel(2, 'EMA200');
+
+   // Set indicator styles
+   SetIndexStyle(0, DRAW_LINE);
+   SetIndexStyle(1, DRAW_LINE);
+   SetIndexStyle(2, DRAW_LINE);
+
+   // Set indicator parameters
+   SetIndexDrawBegin(0, MA10_Period);
+   SetIndexDrawBegin(1, MA21_Period);
+   SetIndexDrawBegin(2, EMA200_Period);
+
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator iteration function                              |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+{
+   int limit = rates_total - prev_calculated;
+
+   if (limit <= 0)
+      return 0;
+
+   for (int i = 0; i < limit; i++)
+   {
+      MA10_Buffer[i] = iMA(NULL, 0, MA10_Period, 0, MODE_SMA, PRICE_CLOSE, i);
+      MA21_Buffer[i] = iMA(NULL, 0, MA21_Period, 0, MODE_SMA, PRICE_CLOSE, i);
+      EMA200_Buffer[i] = iMA(NULL, 0, EMA200_Period, 0, MODE_EMA, PRICE_CLOSE, i);
+   }
+
+   return(rates_total);
+}
